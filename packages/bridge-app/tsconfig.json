@@ -22,11 +22,11 @@
       "dom"
     ],
     "paths": {
-      "http": ["./node_modules/stream-http"],
-      "os": ["./node_modules/os-browserify"],
-      "https":["./node_modules/https-browserify"],
-      "stream":["./node_modules/stream-browserify"],
-      "crypto": ["./node_modules/crypto-browserify"]
+      "http": ["../../node_modules/stream-http"],
+      "os": ["../../node_modules/os-browserify"],
+      "https":["../../node_modules/https-browserify"],
+      "stream":["../../node_modules/stream-browserify"],
+      "crypto": ["../../node_modules/crypto-browserify"]
     }
   },
   "angularCompilerOptions": {
