@@ -19,7 +19,6 @@ contract ElrondEth is ERC20, ERC20Burnable {
 
     constructor() ERC20("ElrondEth", "eETH") {
         owner = msg.sender;
-        // _mint(owner,1000);
     }
 
 
