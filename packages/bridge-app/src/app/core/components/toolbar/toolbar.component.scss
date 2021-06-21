@@ -1,0 +1,87 @@
+.title-toolbar {
+    padding: 2.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.myStyle {
+    color: orange;
+}
+
+.myStyle1 {
+    color: blue;
+}
+
+.myStyle:after {
+    border-bottom: 3px solid red;
+    transform: scaleX(0);
+    transition: transform 250ms ease-in;
+}
+
+.myStyle:hover:after {
+    transform: scaleX(1);
+}
+
+.myStyle.fromLeft:after {
+    transform-origin: 0% 50%;
+}
+
+
+.loggedin-info {
+    display: flex;
+    
+    .item {
+        margin: 0.5rem;
+        align-self: center;
+    }
+}
+
+.toolbar-address {
+    border: 1px solid white;
+    border-radius: 10px;
+    background-color: black;
+    color: slateblue;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, 
+                rgba(0, 0, 0, 0.12) 0px -12px 30px, 
+                rgba(0, 0, 0, 0.12) 0px 4px 6px, 
+                rgba(0, 0, 0, 0.17) 0px 12px 13px, 
+                rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    width: 10vw;
+    overflow: hidden;
+    font-size: small;
+
+    :hover {
+        cursor: pointer;
+        opacity: 0.8;
+    }
+}
+
+mat-toolbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-nav-list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+
+        .link {
+            margin: 10px;
+            font-size: small;
+            // border-bottom: 1px solid black;
+            // border-bottom-color: cadetblue;
+            // color:white;
+        }
+
+        .link-active {
+            margin: 10px;
+            border-bottom: 1px solid orange;
+            border-bottom-color: orange;
+            color:orange;
+            // font-weight: bold;
+            font-size: small;
+        }
+    }
+}
