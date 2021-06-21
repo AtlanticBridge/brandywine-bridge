@@ -40,7 +40,9 @@
               "os",
               "https",
               "stream",
-              "crypto"
+              "crypto",
+              "@walletconnect/web3-provider",
+              "web3"
             ]
           },
           "configurations": {

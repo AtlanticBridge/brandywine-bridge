@@ -43,6 +43,14 @@
     "karma-coverage": "~2.0.3",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
+    "stream-browserify": "^3.0.0",
     "typescript": "~4.2.3"
+  },
+  "browser": {
+    "http": "stream-http",
+    "https": "https-browserify",
+    "os": "os-browserify",
+    "stream": "stream-browserify",
+    "crypto": "crypto-browserify"
   }
 }
