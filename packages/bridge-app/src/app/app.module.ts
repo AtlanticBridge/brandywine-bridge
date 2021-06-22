@@ -7,11 +7,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MaterialModule } from "./modules/material.module";
 import { ToolbarComponent } from './core/components/toolbar/toolbar.component';
+import { BridgeCardComponent } from './core/components/cards/bridge-card/bridge-card.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
+import { BridgePageComponent } from './pages/bridge-page/bridge-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    BridgeCardComponent,
+    HomePageComponent,
+    BridgePageComponent
   ],
   imports: [
     AppRoutingModule,
