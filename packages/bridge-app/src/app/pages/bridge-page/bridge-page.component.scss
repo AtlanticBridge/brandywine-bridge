@@ -1,0 +1,15 @@
+@import "../../globals.scss";
+
+.bridge-page {
+    margin: 0; padding: 0;
+    height: calc(100vh - #{$toolbar-r1-height} - #{$toolbar-r2-height});
+    background-color: #E9DEFF;
+
+    app-bridge-card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: inherit;
+        width: auto;
+    }
+}

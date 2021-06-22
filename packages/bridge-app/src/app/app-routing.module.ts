@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { BridgePageComponent } from './pages/bridge-page/bridge-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 
 const routes: Routes = [
@@ -8,6 +9,13 @@ const routes: Routes = [
     component: HomePageComponent,
     data: {
       title: 'Home Page'
+    }
+  },
+  {
+    path: 'bridge',
+    component: BridgePageComponent,
+    data: {
+      title: 'Brandywine Bridge'
     }
   }
 ];

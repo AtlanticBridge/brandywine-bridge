@@ -20,6 +20,7 @@ export class ToolbarComponent implements OnInit {
   chainlinkStyle:     string = 'link';
   ethstablecoinStyle: string = 'link';
   walletinfoStyle:    string = 'link';
+  bridgeRoute:        string = 'link';
 
   constructor(
     private walletConnectService: WalletConnectService,
@@ -82,6 +83,7 @@ export class ToolbarComponent implements OnInit {
           this.chainlinkStyle = 'link';
           this.walletinfoStyle = 'link';
           this.ethstablecoinStyle = 'link';
+          this.bridgeRoute = 'link';
         }
 
         if (routeEvent.url == '/walletinfo') {
@@ -100,6 +102,14 @@ export class ToolbarComponent implements OnInit {
           this.chainlinkStyle = 'link';
           this.walletinfoStyle = 'link';
           this.ethstablecoinStyle = 'link-active';
+        }
+
+        if (routeEvent.url == '/bridge') {
+          this.bridgeRoute = 'link-active';
+          this.contractRoute = 'link';
+          this.chainlinkStyle = 'link';
+          this.walletinfoStyle = 'link';
+          this.ethstablecoinStyle = 'link';
         }
       }
     })

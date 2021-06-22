@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BrdigePageComponent } from './bridge-page.component';
+import { BridgePageComponent } from './bridge-page.component';
 
-describe('BrdigePageComponent', () => {
-  let component: BrdigePageComponent;
-  let fixture: ComponentFixture<BrdigePageComponent>;
+describe('BridgePageComponent', () => {
+  let component: BridgePageComponent;
+  let fixture: ComponentFixture<BridgePageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BrdigePageComponent ]
+      declarations: [ BridgePageComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BrdigePageComponent);
+    fixture = TestBed.createComponent(BridgePageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
