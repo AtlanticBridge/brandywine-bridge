@@ -42,7 +42,9 @@
               "stream",
               "crypto",
               "@walletconnect/web3-provider",
-              "web3"
+              "web3",
+              "path",
+              "fs"
             ]
           },
           "configurations": {

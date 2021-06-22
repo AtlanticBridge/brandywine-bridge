@@ -2,9 +2,15 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+// Load node modules
+require('dotenv').config()
+
+
+// `environment.ts` file structure
 export const environment = {
   production: false,
-  INFURA_ID: ''
+  INFURA_ID: '',
+  KOVAN_WSS_URL: (process.env.KOVAN_WSS_URL as string || ''),
 };
 
 /*

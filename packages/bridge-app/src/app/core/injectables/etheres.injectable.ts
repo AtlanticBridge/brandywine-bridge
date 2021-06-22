@@ -1,6 +1,7 @@
 import { InjectionToken } from "@angular/core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { ethers, providers } from "ethers";
+// import { environment } from "../../../environments/environment";
 
 
 const MetaMaskProvider = new InjectionToken<providers.Web3Provider>('MetaMask Connected', {
@@ -11,10 +12,10 @@ const MetaMaskProvider = new InjectionToken<providers.Web3Provider>('MetaMask Co
     }
 })
 
-const KovanWebSocketProvider = new InjectionToken<providers.WebSocketProvider>('Truffle Ethereum RPC Provider', {
-    providedIn: 'root',
-    factory: () => new providers.WebSocketProvider(process.env.KOVAN_WSS_URL)
-})
+// const KovanWebSocketProvider = new InjectionToken<providers.WebSocketProvider>('Truffle Ethereum RPC Provider', {
+//     providedIn: 'root',
+//     factory: () => new providers.WebSocketProvider(environment.KOVAN_WSS_URL)
+// })
 
 const walletConnectProvider = new InjectionToken<providers.Web3Provider>('Wallet Connect Provider', {
     providedIn: 'root',
@@ -30,4 +31,4 @@ const walletConnectProvider = new InjectionToken<providers.Web3Provider>('Wallet
 
 // const walletConnectProvider = new WalletConnectProvider({})
 
-export { MetaMaskProvider, KovanWebSocketProvider, walletConnectProvider }
+export { MetaMaskProvider, walletConnectProvider }
