@@ -1,6 +1,5 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-
-const { ethers } = require("hardhat");
+import { Contract } from "@ethersproject/contracts";
+import { artifacts, ethers, network } from "hardhat";
 
 // yours, or create new ones.
 async function main() {
@@ -72,7 +71,7 @@ async function main() {
  * 
  * @param {Contract} lend 
  */
-function saveFrontendFilesLend(lend) {
+function saveFrontendFilesLend(lend: Contract) {
   const fs = require("fs");
   const contractsDir = __dirname + "/../client/src/contracts";
 
@@ -97,7 +96,7 @@ function saveFrontendFilesLend(lend) {
  * 
  * @param {Contract} token 
  */
-function saveFrontendFiles(token) {
+function saveFrontendFiles(token: Contract) {
   const fs = require("fs");
   const contractsDir = __dirname + "/../client/src/contracts";
 
@@ -122,7 +121,7 @@ function saveFrontendFiles(token) {
  * 
  * @param {Contract} priceConsumerV3 
  */
-function saveFrontendFilesPCV3(priceConsumerV3) {
+function saveFrontendFilesPCV3(priceConsumerV3: Contract) {
   const fs = require("fs");
   const contractsDir = __dirname + "/../client/src/contracts";
 
