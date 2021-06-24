@@ -12,4 +12,8 @@ export class BridgeCardComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  sendEth2Erd(address: string): void {
+    console.log(address)
+  }
+
 }

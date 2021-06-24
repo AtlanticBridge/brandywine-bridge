@@ -1,7 +1,9 @@
 <mat-card>
     <mat-card-title>Bridge App</mat-card-title>
 
-    <div>Transfer From</div>
-    <button mat-flat-button color="primary">Ethereum</button>
-    <button mat-flat-button color="primary">Elrond</button>
+    <div>Transfer From ETH to ERD</div>
+    <!-- <button mat-flat-button color="primary">Ethereum</button>
+    <button mat-flat-button color="primary">Elrond</button> -->
+    <input placeholder="elrond public address">
+    <button mat-button (click)="sendEth2Erd('address')">Send ETH to ERD</button>
 </mat-card>
