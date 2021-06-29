@@ -1,3 +1,7 @@
 node_modules
 .env
 yarn-error.log
+
+# Ignore Angular Info
+packages/bridge-app/src/app/contracts/*
+packages/eth-contracts/artifacts
