@@ -11,7 +11,7 @@ export default {
     hardhat: {
       chainId: 1337,
       forking: {
-        url: process.env.ALCHEMY_MAINNET_RPC_URL
+        url: process.env.MAINNET_RPC_URL
       }
     },
     kovan: {
