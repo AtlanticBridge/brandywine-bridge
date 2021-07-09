@@ -1,15 +1,23 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
 
-contract ElrondEth is ERC20, ERC20Burnable {
+contract WrappedElrond is ERC20, ERC20Burnable {
 
     // NOTE: Rename to DittoEther with Symbol dEth
 
     address owner;                      // The owner of the contact upon deployment.
     uint256 fee = 0.005 * 10**18;       // Fee in Wei ( 0.005 ETH ) to account for gas prices upon withdrawl.
+
+    /*
+    NOTE:
+            The "fee" for using the bridge should not be included as a "fee".
+            Instead, a fixed/dynamic gas price should be used to subtract the
+            Amount from the amount sent to the receiving address. In this case,
+            the user pays the gas, instead of having a "fee".
+    */
 
     // EVENTS
     event Mint(address indexed to, uint256 amount);
@@ -17,7 +25,7 @@ contract ElrondEth is ERC20, ERC20Burnable {
 
     receive() external payable {}
 
-    constructor() ERC20("ElrondEth", "eETH") {
+    constructor() ERC20("ElrondEth", "eETH") public {
         owner = msg.sender;
     }
 
