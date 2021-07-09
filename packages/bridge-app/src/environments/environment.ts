@@ -9,6 +9,7 @@ require('dotenv').config()
 // `environment.ts` file structure
 export const environment = {
   production: false,
+  RPC_PROVIDER_URL: 'http://localhost:8545',
   INFURA_ID: '',
   KOVAN_WSS_URL: (process.env.KOVAN_WSS_URL as string || ''),
 };
