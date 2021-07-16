@@ -12,12 +12,12 @@
 
 ## Contents
 
-    1. [Governance Contracts](#governance_contracts)
+    1. [Governance Contracts](#Governance-Contracts)
 
-## Governance Contracts<a name="governance_contracts"></a> 
+## Governance Contracts
 
 
-## Writing Upgradeable Contracts<a name="upgradeable_contracts"></a> 
+## Writing Upgradeable Contracts
 
 ##
 
