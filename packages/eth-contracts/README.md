@@ -10,7 +10,7 @@
     [] Write Minter / Burner Contract
 
 
-## Contents
+## Table of Contents
 
     1. [Governance Contracts](#Governance-Contracts)
 
