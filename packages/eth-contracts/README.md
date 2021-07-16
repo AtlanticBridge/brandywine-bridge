@@ -12,7 +12,7 @@
 
 ## Contents
 
-    1. Governance Contracts(#governance_contracts)
+    1. [Governance Contracts](#governance_contracts)
 
 ## Governance Contracts<a name="governance_contracts"></a> 
 
