@@ -12,7 +12,7 @@
 
 ## Table of Contents
 
-    1. [Governance Contracts](#Governance-Contracts)
+1. [Governance Contracts](#Governance-Contracts)
 
 ## Governance Contracts
 
