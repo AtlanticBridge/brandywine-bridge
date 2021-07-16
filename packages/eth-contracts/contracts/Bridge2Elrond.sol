@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
-import "./ElrondEth.sol";
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
 import "./Utils/Math.sol";
 
