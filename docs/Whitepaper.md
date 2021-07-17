@@ -1,19 +1,19 @@
 # Brandywine Bridge V1
-###### Whitepaper
-###### July 2021
+### Whitepaper
+### July 2021
 
 ### Abstract
 An overview of the theory behind the Brandywine Bridge; its implementation, features, and outlook.
 
 ### Introduction
 
-###### What is the goal of the Brandywine Bridge?
+##### What is the goal of the Brandywine Bridge?
 The initial goal of the Brandywine Bridge is to create a means of transferring assets seamlessly between the Elrond and Ethereum blockchains. We aim to create a infrastructure that is fully decentralised, scalable, and easy to use. The architecture behind the Bridge can then be used to set up connections to other blockchains, with a longer term vision of creating an internet of blockchains.
 
-###### What does it do?
+##### What does it do?
 The bridge allows for the transfer of on-chain assets between different blockchains, by locking assets in a smart contract on their native chain and minting a token on the target chain. The integrity and safety of the bridge is ensured by using Chainlink coupled with a consensus mechanism, described in X.X.
 
-###### How is it different from other bridges?
+#### How is it different from other bridges?
 Many other cross blockchain bridges work by connecting nodes from each of the participating blockchains. Typically, a set of nodes, or validators, on one blockchain listen for events on the other. A consensus mechanism can then take place between the validators on either of the chains, and if consensus is reached, tokens can be minted or burned as required.
 
 The Brandywine Bridge is different. Instead of using validator nodes 
