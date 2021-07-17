@@ -39,7 +39,9 @@ The Brandywine Bridge is different. Instead of using validator nodes
 #### Is it more scalable? Is it more flexible? Research
 
 #### What are the main features? 
-•	Chainlink validators – Responsible for receiving transaction requests
+•	Atlantic Token – A governance token used to vote on protocol changes.
+•	Bridge Aggregators – Contracts for aggregating transfer data.
+•	Chainlink validators – Responsible for receiving transaction requests.
 
 ### Architectural Overview
 
