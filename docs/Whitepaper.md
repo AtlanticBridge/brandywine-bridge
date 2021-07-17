@@ -2,6 +2,8 @@
 ### Whitepaper
 ### July 2021
 
+[Introduction](#introduction)
+
 ### Abstract
 An overview of the theory behind the Brandywine Bridge; its implementation, features, and outlook.
 
