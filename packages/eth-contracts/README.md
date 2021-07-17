@@ -1,5 +1,7 @@
 # Ataltic Soldity Contracts
 
+This repository contains the solidity contracts that manage the Brandywine Bridge project.
+
 ## Tasks
 
     [] Write Governance Contract
@@ -14,7 +16,7 @@
 
 1. [Governance Contracts](#Governance-Contracts)
 2. [Chainlink Oracle Contracts](#Chainlink-Oracle-Contracts)
-    1. [Aggregator](#Aggregator)
+    - [Aggregator](#Aggregator)
 
 ## Governance Contracts
 
@@ -24,12 +26,16 @@ This section outlines the methodology and development structure of the contracts
 
 ### Aggregator
 
-This section outlines the methodology of the aggregator contract.
+The goal of the aggregator contract is to manage the efficacy of a decentralized external adapter system
 
 
 ## Writing Upgradeable Contracts
 
-##
+Check: https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable
+
+## Proxy Upgrade Pattern
+
+Check: https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies
 
 
 
