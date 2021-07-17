@@ -3,13 +3,21 @@
 ### July 2021
 
 [1. Introduction](#introduction)
+
 [2. Architectural Overview](#architectural-overview)
+
 [3. Contract Overview](#contract-overview)
+
 [4. Bridge Integrity And Safety](#bridge-integrity-and-safety)
+
 [5. Validators](#validators)
+
 [6. Governance](#governance)
+
 [7. Future Developments](#future-developments)
+
 [8. Potential Use Cases](#potential-use-cases)
+
 [9. Formal Definitions](#formal-definitions)
 
 ### Abstract
