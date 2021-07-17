@@ -6,7 +6,7 @@
 
 [2. Architectural Overview](#architectural-overview)
 
-[3. Contract Overview](#contract-overview)
+[3. Bridge Contract Overview](#contract-overview)
 
 [4. Bridge Integrity And Safety](#bridge-integrity-and-safety)
 
@@ -64,9 +64,15 @@ In this example we examine the journey of an Ethereum user’s request to transf
 
 **Failure**: If consensus is not reached, the transfer is deemed a failure, and the deposit is returned to the user for resubmission.
 
-### Contract Overview
+### Bridge Contract Overview
 
-An overview of the internal workings of the contracts involved in the bridge (not governance). Mainly the bridge aggregator, holding, and minting/burning contracts.
+An overview of the internal workings of the contracts involved in the bridge (not governance). Mainly the bridge aggregator, holding, and minting/burning contracts. These contracts are developed to be upgradeable through a proxy upgrade pattern. There are two main reasons for developing the contracts this way: 
+
+1. to easily and quickly fix any vulnerabilities and
+2. to allow a way to introduce enhancements.
+
+
+
 
 ### Bridge integrity and safety
 
@@ -84,6 +90,7 @@ It is more likely that a message is not received due to loss of connection to th
 
 ###### How are validators chosen for each transfer?
 For any transfer the probability of being chosen as a validator is determined by the following formula, where:
+
 K is the size of a validators stake,
 L is the longevity that they have been a validator,
 C is a constant determined through governance,
@@ -125,7 +132,19 @@ Alongside these validators an Atlantic Validator Node will be created at launch,
 (This section needs more information about launch)
 
 ### Future developments
+
+The purpose of building the Brandywine Bridge is to create a means of transferring assets seamlessly between different blockchains. The strategy used through decetralized orcal solutions gives a unique capability of building a service that allows other builders to participate and expand the ecosystem. The Atlantic team believes there are two main improvements that will expand and support the goal of the Brandywine Bridge:
+
+1. Additional Blockchain Bridges
+2. Automated Integration of Tokens
+
+#### Additional Blockchain Bridges
+The abstract methodology that will be integrated in the Brandywine Bridge governance contracts will follow Chainlink's blockchain agnostic oracle solution. Individuals and users should not be limited to only a select 1 or 2 blockchain integrations. The extension of the Brandywine bridge will be limited to the implementation of a set of external adapters the connect to other blockchains through the oracle network.
+
 An overview of how we can easily integrate more blockchains. We will have to design the current framework with this in mind.
+
+#### Automated Integration of Tokens
+When a pairing between two or more blockchains is built, the assets that can be transfered should not be limited to pre-defined tokens. By providing an asset / contract address, liquidity and price feed, the automated integration service allows for individuals to build and bridge their tokens seemlesly with other connected bridges.
 
 ### Potential use cases
 Potential use cases for the Brandywine Bridge to inspire developers who want to use it in their applications. Similar to the use cases section of the Ethereum white paper.
