@@ -27,7 +27,7 @@ The Brandywine Bridge is different. Instead of using validator nodes
 
 The diagram below describes the high-level architecture of the Brandywine Bridge.
 
-![Alt text](Architectural Overview.jpg?raw=true "Architectural Overview")
+[Architectural Overview](Architectural Overview.jpg?raw=true "Architectural Overview")
 
 #### User Journey
 In this example we examine the journey of an Ethereum user’s request to transfer 10 Eth to 10 bEth on the Elrond chain, from the web application to completion.
