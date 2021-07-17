@@ -111,12 +111,21 @@ Potential use cases for the Brandywine Bridge to inspire developers who want to 
 ### Formal Definitions
 
 A list of formal definitions outlining the key terms used in this whitepaper and the Brandywine ecosystem, sorted alphabetically.
+
 **Atlantic token** – The governance token for the Brandywine Bridge.
+
 **bEth** – A token representing Eth with one to one parity on a non-native blockchain.
+
 **Bridge Aggregator** - 
+
 **Consensus of Price** – Consensus mechanism where price and address data is used to validate a transaction.
-**Holding contract** – 
+
+**Holding contract** –
+
 **Source chain** – The blockchain where a user makes an initial deposit.
+
 **Transfer request** – A call to the deposit function on the Bridge Aggregator/Holding contract, along with an address to send funds to on the target chain.
+
 **Target chain** – The blockchain where a user hopes to receive funds, after a deposit is made on their native chain.
+
 **Validator** – The operator of a Chainlink node used to pass transaction information between two blockchains.
