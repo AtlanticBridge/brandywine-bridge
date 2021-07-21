@@ -15,6 +15,8 @@ This repository contains the solidity contracts that manage the Brandywine Bridg
 ## Table of Contents
 
 1. [Governance Contracts](#Governance-Contracts)
+    - [Proposers](#Proposers)
+    - [Voters](#Voters)
 2. [Chainlink Oracle Contracts](#Chainlink-Oracle-Contracts)
     - [Aggregator](#Aggregator)
 
