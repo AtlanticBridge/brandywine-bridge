@@ -2,7 +2,7 @@
 pragma solidity ^0.6.0;
 
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
-import "./Utils/Math.sol";
+import "../Utils/Math.sol";
 
 /**
  * @dev Instructions for building the bridge.
@@ -29,6 +29,7 @@ contract Bridge2Elrond is ChainlinkClient, Math {
 
     // --- FUND MANAGEMENT VARIABLES --- 
     mapping(address => uint256) private MintingAmount;
+    mapping(address => address) private _OracleList;
 
     // --- EVENTS ---
     event Success(address indexed _from, bytes32 indexed _id, bool _success, uint256 _value);
@@ -64,7 +65,7 @@ contract Bridge2Elrond is ChainlinkClient, Math {
      *          - The 'high' or 'low' parameter to query the "highlow" EA response.
      *
      */
-    function requestElrondTransfer() minimumAmount public payable
+    function requestElrondTransfer(string memory elrondAddress) minimumAmount public payable
     {
         // NOTE: [1] Do we need any requirements?
         // NOTE: [2] What if a user/address sends multiple requests?
@@ -85,6 +86,8 @@ contract Bridge2Elrond is ChainlinkClient, Math {
         
         // Set the Endpoint with the parameter for the amount of WEI
         request.add("transfer", strAmount);
+
+        request.add("elrond", elrondAddress);
         
         // Sends the request
         sendChainlinkRequestTo(oracle, request, fee);
