@@ -6,7 +6,7 @@
 
 [2. Architectural Overview](#architectural-overview)
 
-[3. Bridge Contract Overview](#contract-overview)
+[3. Bridge Contract Overview](#bridge-contract-overview)
 
 [4. Bridge Integrity And Safety](#bridge-integrity-and-safety)
 
@@ -72,7 +72,9 @@ An overview of the internal workings of the contracts involved in the bridge (no
 2. to allow a way to introduce enhancements.
 
 
+#### NOTES
 
+1. How do we aggregate the Oracle calls?
 
 ### Bridge integrity and safety
 
