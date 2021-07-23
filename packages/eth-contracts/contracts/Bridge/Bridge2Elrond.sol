@@ -23,13 +23,22 @@ import "../Utils/Math.sol";
 contract Bridge2Elrond is ChainlinkClient, Math {
     
     // --- LOCAL VARIABLES ---
-    address private oracle;
+    address private oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;        // TODO: Needs to be changed.
     bytes32 private jobId_eth2erd;
     uint256 private fee;
+    uint256 public  numOracles = 20;
+    bool private initialized;
 
     // --- FUND MANAGEMENT VARIABLES --- 
     mapping(address => uint256) private MintingAmount;
     mapping(address => address) private _OracleList;
+    mapping(uint256 => BridgeResponse[]) private MapResponse;
+
+    // --- STRUCTS ---
+    struct BridgeResponse {
+        uint256 _num;
+        uint256 _minted;
+    }
 
     // --- EVENTS ---
     event Success(address indexed _from, bytes32 indexed _id, bool _success, uint256 _value);
@@ -43,11 +52,18 @@ contract Bridge2Elrond is ChainlinkClient, Math {
      * Job ID Highlow: 740306a4d92d4ab1ad07f033183a5975
      * Fee: 1.1 LINK
      */
-    constructor() public {
+    function initialize(uint256 _fee) public {
+
+        require(!initialized, "Contract instance has already been initialized");
+        initialized = true;
+
         setPublicChainlinkToken();
         oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;        // Add your node oracle here.
+
+        // Setup the initial list of Job Specifications.
         jobId_eth2erd = "ENTER_NUMBER_HERE";                        // Add the jobID of your chainlink external adapter job here.
-        fee = 1.1 * 10 ** 18;                                       // (Varies by network and job)
+        fee = _fee;                                                 // (Varies by network and job)
+
     }
 
 
@@ -119,6 +135,11 @@ contract Bridge2Elrond is ChainlinkClient, Math {
      */
     function fulfillElrondTransfer(bytes32 _requestId, bytes32 _strMinted) public recordChainlinkFulfillment(_requestId)
     {
+        /*
+        We want to aggregate the responses and double check whether the results were correct or not.
+
+        The 
+        */
         uint256 _minted = asciiToInteger(_strMinted);
 
         // We want to check and make sure that the amount minted is the correct amount and no additional values where 

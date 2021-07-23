@@ -18,6 +18,8 @@ While Item 1 is the Ethereum to Elrond bridge, Item 2 covers un-locking Ether, o
     [] Write ETH Lockup Contract
     [] Write Minter / Burner Contract
 
+    [] Define endpoint architecture for adding more blockchain connections.
+
 
 ## Table of Contents
 
