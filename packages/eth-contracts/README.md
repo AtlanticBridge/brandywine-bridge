@@ -69,16 +69,16 @@ A separate aggregator contract to mint the bETH on Elrond is used.
 
 The goal of the aggregator contract is to manage the efficacy of a decentralized external adapter system
 
-### Bridge Contracts
+## Bridge Contracts
 
 The Bridge contracts on Ethereum and Elrond smart contracts work independently from each other and are solely linked through the Chainlink node operators. Having indepenent governance between blockchains allows for the smart contract structure to tailer towards the needs of each respective blockchain. It also helps keep an agnostic and abstract approach, allowing for each blockchain's governance contracts to store the available links to all the blockchain bridges available in the network.
 
 
-#### Ethereum to Elrond
+### Ethereum to Elrond
 
 Bridge contracts are based in Ethereum due to the connection structure of the Chainlink node connection being dependent to EVM machines. To be agnostic and maintain decentralization, there is a need to [1] aggregate responses from external adapters on the Chainlink nodes and [2] aggregate responses from Chainlink nodes in the smart contracts.
 
-#### Elrond to Ethereum
+### Elrond to Ethereum
 
 Because the Chainlink nodes are directly linked to the Ethereum blockchain and not the Elrond blockchain (currently), it is necessary to utilize external initiators to trigger Chainlink node operations. 
 
