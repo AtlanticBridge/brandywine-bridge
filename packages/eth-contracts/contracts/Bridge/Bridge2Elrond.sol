@@ -20,18 +20,26 @@ import "../Utils/Math.sol";
  * TODO:
  *      [1] Implement a withdraw function to retrieve the Link locked in the contract. Must 
  */
-contract Bridge2Elrond is ChainlinkClient, Math {
+contract Bridge2Elrond is ChainlinkClient {
     
     // --- LOCAL VARIABLES ---
-    address private oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;        // TODO: Needs to be changed.
+    // Public
+    
+    // Private
     bytes32 private jobId_eth2erd;
-    uint256 private fee;
-    uint256 public  numOracles = 20;
     bool private initialized;
+    uint256 private fee;
+    address private _oracle;
+    address[] private _oracleList;
+    uint256 private _numOracles;                                // Index starts at 0, but numNodes is the TOTAL amount of nodes in the list. When indexing, use [ _numNodes - 1 ].
+    mapping(address => bool) private authorizedOracles;         // The authorized nodes allow us to ping multiple nodes and aggregate responses through the same Oracle contract.
+    mapping(address => bytes32[]) private jobIds;               // Holds the specific jobIds for that Oracle.
+    mapping(bytes32 => BridgeJobInfo) private bridgeJobInfo;    // Holds the jobId information.
 
     // --- FUND MANAGEMENT VARIABLES --- 
     mapping(address => uint256) private MintingAmount;
-    mapping(address => address) private _OracleList;
+    
+    // mapping(address => address) private _OracleList;
     mapping(uint256 => BridgeResponse[]) private MapResponse;
 
     // --- STRUCTS ---
@@ -40,8 +48,17 @@ contract Bridge2Elrond is ChainlinkClient, Math {
         uint256 _minted;
     }
 
+    struct BridgeJobInfo {
+        string name;
+        uint256 chainId;
+        bytes32 jobId;
+    }
+
     // --- EVENTS ---
     event Success(address indexed _from, bytes32 indexed _id, bool _success, uint256 _value);
+
+    // --- GOVERNANCE VARIABLES ---
+    uint256 _fee;
 
     // Map to 
     
@@ -52,17 +69,22 @@ contract Bridge2Elrond is ChainlinkClient, Math {
      * Job ID Highlow: 740306a4d92d4ab1ad07f033183a5975
      * Fee: 1.1 LINK
      */
-    function initialize(uint256 _fee) public {
+    function initialize(uint256 init_fee) public {
 
         require(!initialized, "Contract instance has already been initialized");
         initialized = true;
 
+        _oracleList.push(0xFA9E7d769870CEAa202C1090D80daF7CBd655F56);     // Set the initial Node address.
+        _numOracles += 1;
+        // _oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;
+        
+
         setPublicChainlinkToken();
-        oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;        // Add your node oracle here.
+        // oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;        // Add your node oracle here.
 
         // Setup the initial list of Job Specifications.
         jobId_eth2erd = "ENTER_NUMBER_HERE";                        // Add the jobID of your chainlink external adapter job here.
-        fee = _fee;                                                 // (Varies by network and job)
+        fee = init_fee;                                                 // (Varies by network and job)
 
     }
 
@@ -95,7 +117,7 @@ contract Bridge2Elrond is ChainlinkClient, Math {
         MintingAmount[msg.sender] = msg.value;
 
         // Converts the paid amount into a string
-        string memory strAmount = uint2str(msg.value);
+        string memory strAmount = Math.uint2str(msg.value);
 
         // Builds the Chainlink Request
         Chainlink.Request memory request = buildChainlinkRequest(jobId_eth2erd, address(this), this.fulfillElrondTransfer.selector);
@@ -106,7 +128,21 @@ contract Bridge2Elrond is ChainlinkClient, Math {
         request.add("elrond", elrondAddress);
         
         // Sends the request
-        sendChainlinkRequestTo(oracle, request, fee);
+        sendChainlinkRequestTo(_oracle, request, fee);
+
+
+
+        for (uint i = 0; i < _numOracles; i += 1) {
+            _oracle = _oracleList[i];
+            bytes32[] storage _jobIds = jobIds[_oracle];
+            bytes32 _jobId = _getSpecificJob(_jobIds, "elrond");  // We want to call the correct Bridge.
+            uint256 _payment = _fee;
+
+            Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.fulfillElrondTransfer.selector);
+
+            _request.add("elrond", strAmount);
+            sendChainlinkRequestTo(_oracle, _request, _payment);
+        }
     }
     
 
@@ -140,7 +176,7 @@ contract Bridge2Elrond is ChainlinkClient, Math {
 
         The 
         */
-        uint256 _minted = asciiToInteger(_strMinted);
+        uint256 _minted = Math.asciiToInteger(_strMinted);
 
         // We want to check and make sure that the amount minted is the correct amount and no additional values where 
         // Calculate Balance:
@@ -156,6 +192,55 @@ contract Bridge2Elrond is ChainlinkClient, Math {
     }
  
     // function withdrawLink() external {} - Implement a withdraw function to avoid locking your LINK in the contract
+
+
+    // **********************
+    // --- VIEW FUNCTIONS ---
+    // **********************
+    function getNumOracles() public view returns (uint256) {
+        return _numOracles;
+    }
+
+
+    // *************************
+    // --- PRIVATE FUNCTIONS ---
+    // *************************
+
+
+    /**
+     * fulfillElrondTransfer()
+     *
+     *           Receives the fulfillElrondTransfer() response in the form of bytes32.
+     *            
+     * 
+     * Parameters
+     * ----------
+     * _jobIds : bytes32[]
+     *            - The Chainlink Request, request ID, sent with the payload.
+     *
+     * bridgeName : bytes32
+     *            - The "high" or "low" address returned from the pre-defined endpoint.
+     *
+     *
+     *
+     */
+    function _getSpecificJob(
+        bytes32[] storage _jobIds,
+        string memory bridgeName
+    ) private view returns (bytes32) {
+
+        // TODO: Check if _jobIds is empty / add modifier.
+        // TODO: Add a failed return statement.
+
+
+        for (uint i = 0; i < _jobIds.length; i+= 1) {
+            BridgeJobInfo memory jobInfo = bridgeJobInfo[_jobIds[i]];
+            
+            if (Math.CompareStrings(jobInfo.name, bridgeName)) {
+                return (jobInfo.jobId);
+            }
+        }
+    }
 
     // *****************
     // --- MODIFIERS ---

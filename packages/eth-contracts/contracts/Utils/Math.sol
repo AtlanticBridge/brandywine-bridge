@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
-contract Math {
+library Math {
 
 
     /**
@@ -47,6 +47,17 @@ contract Math {
                 break;
         }
         return y;
+    }
+
+    function CompareStrings(
+        string memory a, 
+        string memory b
+    ) public pure returns (bool) {
+        if (keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b))) {
+            return true;
+        }
+
+        return false;
     }
 
 }

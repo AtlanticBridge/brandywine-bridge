@@ -16,9 +16,9 @@ contract OracleManager {
         address oracle;
     }
 
-    mapping(address => Oracle) OracleList;
+    uint256 numOracles;
 
-    address[] public OracleResponse;
+    mapping(uint256 => Oracle) OracleList;
 
 
     /**

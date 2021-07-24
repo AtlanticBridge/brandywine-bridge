@@ -27,6 +27,7 @@ While Item 1 is the Ethereum to Elrond bridge, Item 2 covers un-locking Ether, o
     - [Proposers](#Proposers)
     - [Voters](#Voters)
 2. [Chainlink Oracle Contracts](#Chainlink-Oracle-Contracts)
+    - [Oracle](#Oracle)
     - [Aggregator](#Aggregator)
 
 ## Governance Contracts
@@ -56,12 +57,20 @@ The amount allowed to be minted by an external adapter is limited to the amount 
 **insert diagram here**
 User Request => Bridge 2 Elrond Contract => Send Multiple Chainlink Oracle Requests => Aggregate Responses to verify if tokens were actually minted.
 
+### Oracle
+
+All Chainlink transactions are funneled through the Chainlink Oracle contracts. Oracle contracts must be approved through the Governance DAO contract where the participants may approve, deny or remove Chainlink nodes. 
+
 ### Aggregator
 
 The aggregator contract resolves the incoming requests to unlock ETH held in the holding contract. This contrcat does not get invoked when locking up ETH to be minted on the Elrond blockchain.
 A separate aggregator contract to mint the bETH on Elrond is used.
 
 The goal of the aggregator contract is to manage the efficacy of a decentralized external adapter system
+
+### Bridge 2 Elrond
+
+Bridge contracts are based in Ethereum due to the connection structure of the Chainlink node connection being dependent to EVM machines. To be agnostic, there is a need to aggregate full responses from [1] Chainlink nodes and [2] 
 
 
 ## Writing Upgradeable Contracts
