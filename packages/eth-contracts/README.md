@@ -29,6 +29,7 @@ While Item 1 is the Ethereum to Elrond bridge, Item 2 covers un-locking Ether, o
 2. [Chainlink Oracle Contracts](#Chainlink-Oracle-Contracts)
     - [Oracle](#Oracle)
     - [Aggregator](#Aggregator)
+3. [Bridge Contracts](#Bridge-Contracts)
 
 ## Governance Contracts
 
@@ -68,10 +69,20 @@ A separate aggregator contract to mint the bETH on Elrond is used.
 
 The goal of the aggregator contract is to manage the efficacy of a decentralized external adapter system
 
-### Bridge 2 Elrond
+### Bridge Contracts
 
-Bridge contracts are based in Ethereum due to the connection structure of the Chainlink node connection being dependent to EVM machines. To be agnostic, there is a need to aggregate full responses from [1] Chainlink nodes and [2] 
+The Bridge contracts on Ethereum and Elrond smart contracts work independently from each other and are solely linked through the Chainlink node operators. Having indepenent governance between blockchains allows for the smart contract structure to tailer towards the needs of each respective blockchain. It also helps keep an agnostic and abstract approach, allowing for each blockchain's governance contracts to store the available links to all the blockchain bridges available in the network.
 
+
+#### Ethereum to Elrond
+
+Bridge contracts are based in Ethereum due to the connection structure of the Chainlink node connection being dependent to EVM machines. To be agnostic and maintain decentralization, there is a need to [1] aggregate responses from external adapters on the Chainlink nodes and [2] aggregate responses from Chainlink nodes in the smart contracts.
+
+#### Elrond to Ethereum
+
+Because the Chainlink nodes are directly linked to the Ethereum blockchain and not the Elrond blockchain (currently), it is necessary to utilize external initiators to trigger Chainlink node operations. 
+
+For more information on the Elrond smart contracts and structure, please refer to the README in the erd-contracts package.
 
 ## Writing Upgradeable Contracts
 
