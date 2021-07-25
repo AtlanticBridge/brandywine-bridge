@@ -3,6 +3,7 @@ pragma solidity ^0.6.0;
 
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
 import "../Utils/Math.sol";
+import "../Governance/Governance.sol";
 
 /**
  * @dev Instructions for building the bridge.
@@ -20,21 +21,13 @@ import "../Utils/Math.sol";
  * TODO:
  *      [1] Implement a withdraw function to retrieve the Link locked in the contract. Must 
  */
-contract Bridge2Elrond is ChainlinkClient {
+contract Bridge2Elrond is ChainlinkClient, AccessControl {
+
+    using BridgeRoles for bytes32;
     
     // --- LOCAL VARIABLES ---
-    // Public
-    
-    // Private
-    bytes32 private jobId_eth2erd;
-    bool private initialized;
-    uint256 private fee;
-    address private _oracle;
-    address[] private _oracleList;
-    uint256 private _numOracles;                                // Index starts at 0, but numNodes is the TOTAL amount of nodes in the list. When indexing, use [ _numNodes - 1 ].
-    mapping(address => bool) private authorizedOracles;         // The authorized nodes allow us to ping multiple nodes and aggregate responses through the same Oracle contract.
-    mapping(address => bytes32[]) private jobIds;               // Holds the specific jobIds for that Oracle.
-    mapping(bytes32 => BridgeJobInfo) private bridgeJobInfo;    // Holds the jobId information.
+    address private govAddress;
+    Governance private governance;
 
     // --- FUND MANAGEMENT VARIABLES --- 
     mapping(address => uint256) private MintingAmount;
@@ -46,12 +39,6 @@ contract Bridge2Elrond is ChainlinkClient {
     struct BridgeResponse {
         uint256 _num;
         uint256 _minted;
-    }
-
-    struct BridgeJobInfo {
-        string name;
-        uint256 chainId;
-        bytes32 jobId;
     }
 
     // --- EVENTS ---
@@ -69,22 +56,8 @@ contract Bridge2Elrond is ChainlinkClient {
      * Job ID Highlow: 740306a4d92d4ab1ad07f033183a5975
      * Fee: 1.1 LINK
      */
-    function initialize(uint256 init_fee) public {
-
-        require(!initialized, "Contract instance has already been initialized");
-        initialized = true;
-
-        _oracleList.push(0xFA9E7d769870CEAa202C1090D80daF7CBd655F56);     // Set the initial Node address.
-        _numOracles += 1;
-        // _oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;
-        
-
+    function initialize() public {
         setPublicChainlinkToken();
-        // oracle = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;        // Add your node oracle here.
-
-        // Setup the initial list of Job Specifications.
-        jobId_eth2erd = "ENTER_NUMBER_HERE";                        // Add the jobID of your chainlink external adapter job here.
-        fee = init_fee;                                                 // (Varies by network and job)
 
     }
 
@@ -208,7 +181,7 @@ contract Bridge2Elrond is ChainlinkClient {
 
 
     /**
-     * fulfillElrondTransfer()
+     * _getSpecificJob()
      *
      *           Receives the fulfillElrondTransfer() response in the form of bytes32.
      *            
@@ -216,10 +189,10 @@ contract Bridge2Elrond is ChainlinkClient {
      * Parameters
      * ----------
      * _jobIds : bytes32[]
-     *            - The Chainlink Request, request ID, sent with the payload.
+     *            - The list of available bridges to transfer funds to.
      *
-     * bridgeName : bytes32
-     *            - The "high" or "low" address returned from the pre-defined endpoint.
+     * bridgeName : string
+     *            - The name of the bridge a user wants to transfer to.
      *
      *
      *
@@ -249,4 +222,5 @@ contract Bridge2Elrond is ChainlinkClient {
         require(msg.value > 100000);
         _;
     }
+
 }
