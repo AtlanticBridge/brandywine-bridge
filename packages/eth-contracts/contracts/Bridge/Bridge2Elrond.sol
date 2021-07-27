@@ -57,6 +57,9 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
      * Fee: 1.1 LINK
      */
     function initialize() public {
+
+        this.govAddress = "";
+
         setPublicChainlinkToken();
 
     }
@@ -105,17 +108,7 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
 
 
 
-        for (uint i = 0; i < _numOracles; i += 1) {
-            _oracle = _oracleList[i];
-            bytes32[] storage _jobIds = jobIds[_oracle];
-            bytes32 _jobId = _getSpecificJob(_jobIds, "elrond");  // We want to call the correct Bridge.
-            uint256 _payment = _fee;
-
-            Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.fulfillElrondTransfer.selector);
-
-            _request.add("elrond", strAmount);
-            sendChainlinkRequestTo(_oracle, _request, _payment);
-        }
+        
     }
     
 
@@ -160,6 +153,14 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
             emit Success(msg.sender, _requestId, true, _minted);    // Contract was successfully filled.
         }
 
+        // Step 1: Get List of Approved Oracles.
+        // Step 2: Get jobId for Bridge to specific request for the specific Oracle.
+        // Step 3: Send request, repeat process until M oracle requests have been submitted.
+
+        Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.fulfillElrondTransfer.selector);
+
+        _request.add("elrond", strAmount);
+        sendChainlinkRequestTo(_oracle, _request, _payment);
         emit Success(msg.sender, _requestId, false, _minted);       // Contract did not successfully fill.
                                                                     // TODO: We want to "cancel" the order and return funds to user.
     }
@@ -170,9 +171,7 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
     // **********************
     // --- VIEW FUNCTIONS ---
     // **********************
-    function getNumOracles() public view returns (uint256) {
-        return _numOracles;
-    }
+    
 
 
     // *************************
@@ -180,40 +179,7 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
     // *************************
 
 
-    /**
-     * _getSpecificJob()
-     *
-     *           Receives the fulfillElrondTransfer() response in the form of bytes32.
-     *            
-     * 
-     * Parameters
-     * ----------
-     * _jobIds : bytes32[]
-     *            - The list of available bridges to transfer funds to.
-     *
-     * bridgeName : string
-     *            - The name of the bridge a user wants to transfer to.
-     *
-     *
-     *
-     */
-    function _getSpecificJob(
-        bytes32[] storage _jobIds,
-        string memory bridgeName
-    ) private view returns (bytes32) {
-
-        // TODO: Check if _jobIds is empty / add modifier.
-        // TODO: Add a failed return statement.
-
-
-        for (uint i = 0; i < _jobIds.length; i+= 1) {
-            BridgeJobInfo memory jobInfo = bridgeJobInfo[_jobIds[i]];
-            
-            if (Math.CompareStrings(jobInfo.name, bridgeName)) {
-                return (jobInfo.jobId);
-            }
-        }
-    }
+    
 
     // *****************
     // --- MODIFIERS ---
