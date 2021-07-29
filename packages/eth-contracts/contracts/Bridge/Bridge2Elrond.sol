@@ -4,6 +4,7 @@ pragma solidity ^0.6.0;
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
 import "../Utils/Math.sol";
 import "../Governance/Governance.sol";
+import "./OracleLink.sol";
 
 /**
  * @dev Instructions for building the bridge.
@@ -21,7 +22,7 @@ import "../Governance/Governance.sol";
  * TODO:
  *      [1] Implement a withdraw function to retrieve the Link locked in the contract. Must 
  */
-contract Bridge2Elrond is ChainlinkClient, AccessControl {
+contract Bridge2Elrond is OracleLink, ChainlinkClient, AccessControl {
 
     using BridgeRoles for bytes32;
     
@@ -31,15 +32,6 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
 
     // --- FUND MANAGEMENT VARIABLES --- 
     mapping(address => uint256) private MintingAmount;
-    
-    // mapping(address => address) private _OracleList;
-    mapping(uint256 => BridgeResponse[]) private MapResponse;
-
-    // --- STRUCTS ---
-    struct BridgeResponse {
-        uint256 _num;
-        uint256 _minted;
-    }
 
     // --- EVENTS ---
     event Success(address indexed _from, bytes32 indexed _id, bool _success, uint256 _value);
@@ -56,9 +48,10 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
      * Job ID Highlow: 740306a4d92d4ab1ad07f033183a5975
      * Fee: 1.1 LINK
      */
-    function initialize() public {
+    function initialize(uint256 init_fee) public {
 
-        this.govAddress = "";
+        govAddress = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;
+        _fee       = init_fee;
 
         setPublicChainlinkToken();
 
@@ -79,7 +72,7 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
      *          - The 'high' or 'low' parameter to query the "highlow" EA response.
      *
      */
-    function requestElrondTransfer(string memory elrondAddress) minimumAmount public payable
+    function requestElrondTransfer(string memory elrondAddress, uint256 amount) minimumAmount public payable
     {
         // NOTE: [1] Do we need any requirements?
         // NOTE: [2] What if a user/address sends multiple requests?
@@ -89,25 +82,27 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
         //      [1] What if a user/address sends multiple requests?
         //      
 
-        // Sets the amount minted to the 
         MintingAmount[msg.sender] = msg.value;
-
-        // Converts the paid amount into a string
+        // --- Transaction Variables ---
         string memory strAmount = Math.uint2str(msg.value);
 
-        // Builds the Chainlink Request
-        Chainlink.Request memory request = buildChainlinkRequest(jobId_eth2erd, address(this), this.fulfillElrondTransfer.selector);
-        
-        // Set the Endpoint with the parameter for the amount of WEI
-        request.add("transfer", strAmount);
+        // It might be more cost effective to use a EVENT emitter and then an external initiator to trigger
+        // a Chainlink oracle / job.
+        for (uint i=0; i < oracleList.length; i++) {
+            address oracle = oracleList[i];
+            bytes32 jobId = jobIdList[oracle];
+            Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfillElrondTransfer.selector);
 
-        request.add("elrond", elrondAddress);
-        
-        // Sends the request
-        sendChainlinkRequestTo(_oracle, request, fee);
+            // Set the Endpoint with the parameter for the amount of WEI
+            request.add("transfer", strAmount);
 
+            request.add("address", elrondAddress);
 
+            request.add("price", strAmount);
 
+            // Sends the request
+            sendChainlinkRequestTo(oracle, request, _fee);
+        }
         
     }
     
@@ -153,14 +148,7 @@ contract Bridge2Elrond is ChainlinkClient, AccessControl {
             emit Success(msg.sender, _requestId, true, _minted);    // Contract was successfully filled.
         }
 
-        // Step 1: Get List of Approved Oracles.
-        // Step 2: Get jobId for Bridge to specific request for the specific Oracle.
-        // Step 3: Send request, repeat process until M oracle requests have been submitted.
-
-        Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.fulfillElrondTransfer.selector);
-
-        _request.add("elrond", strAmount);
-        sendChainlinkRequestTo(_oracle, _request, _payment);
+        
         emit Success(msg.sender, _requestId, false, _minted);       // Contract did not successfully fill.
                                                                     // TODO: We want to "cancel" the order and return funds to user.
     }

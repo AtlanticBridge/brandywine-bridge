@@ -15,6 +15,7 @@ contract Governance is AccessControl {
     uint256 private fee;
     address private _oracle;
     address[] private _oracleList;
+    // 100 oracles => 20 requests. >20 Oracles, then select only 20. Chainlink VRF
     address private _bridgeContract;
     uint256 private _numOracles;                                // Index starts at 0, but numNodes is the TOTAL amount of nodes in the list. When indexing, use [ _numNodes - 1 ].
     mapping(address => bool) private authorizedOracles;         // The authorized nodes allow us to ping multiple nodes and aggregate responses through the same Oracle contract.
