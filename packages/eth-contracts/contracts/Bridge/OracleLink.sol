@@ -24,7 +24,7 @@ contract OracleLink {
 
     function addJob(
         address _oracle,
-        string memory _jobId
+        bytes32 _jobId
     ) public {
         // Require that the Oracle already exists.
         jobIdList[_oracle] = _jobId;
