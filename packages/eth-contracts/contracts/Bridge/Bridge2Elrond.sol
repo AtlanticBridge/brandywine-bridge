@@ -1,46 +1,52 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
-import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
 import "../Utils/Math.sol";
-import "../Governance/Governance.sol";
-import "./OracleLink.sol";
+import "../Governance/Roles.sol";
 
-/**
- * @dev Instructions for building the bridge.
- *
- *  1] Receives ETH
- *  2] FUNCTION: Deposit 
- *
- * INHERIT
- * -------
- *
- * [1] We inherit the ChainlinkClient contract so we can create and fulfill order requests to our Chainlink node.
- * [2] We inherit the Math contract in order to use the Math needed for converting the _minted amounts between uint256 and string.
- *
- * 
- * TODO:
- *      [1] Implement a withdraw function to retrieve the Link locked in the contract. Must 
- */
-contract Bridge2Elrond is OracleLink, ChainlinkClient, AccessControl {
+contract Governance is AccessControl {
 
     using BridgeRoles for bytes32;
-    
-    // --- LOCAL VARIABLES ---
-    address private govAddress;
-    Governance private governance;
 
-    // --- FUND MANAGEMENT VARIABLES --- 
-    mapping(address => uint256) private MintingAmount;
+    bytes32 private jobId_eth2erd;
+    bool private initialized;
+    uint256 private fee;
+    address private _oracle;
+    address[] private _oracleList;
+    // 100 oracles => 20 requests. >20 Oracles, then select only 20. Chainlink VRF
+    address private _bridgeContract;
+    uint256 private _numOracles;                                // Index starts at 0, but numNodes is the TOTAL amount of nodes in the list. When indexing, use [ _numNodes - 1 ].
+    mapping(address => bool) private authorizedOracles;         // The authorized nodes allow us to ping multiple nodes and aggregate responses through the same Oracle contract.
+    mapping(address => bytes32[]) private jobIds;               // Holds the specific jobIds for that Oracle.
+    mapping(bytes32 => BridgeJobInfo) private bridgeJobInfo;    // Holds the jobId information.
 
-    // --- EVENTS ---
-    event Success(address indexed _from, bytes32 indexed _id, bool _success, uint256 _value);
+    // We want to:
+    //  1. RATE LIMIT
+    //  2. MAXIMUM USAGE.
+    //      - Oracle Contracts are tied to Node operators. We want to limit the
+    //        maximum usage of each of these in order to maintain security measures
+    //        and as an extra layer of security for any external adapters that are
+    //        might trying to hack or distrub the network.
+    //  3. CIRCUIT BREAKER.
+    //      - If something goes wrong in the smart contract, we want to be able to 
+    //        pause the contract.
 
-    // --- GOVERNANCE VARIABLES ---
-    uint256 _fee;
+    // --- STRUCTS ---
+    struct BridgeJobInfo {
+        string name;
+        uint256 chainId;
+        bytes32 jobId;
+    }
 
-    // Map to 
-    
+
+    // --- Governance Metrics ---
+    /**
+     * The governance contract metrics are the variables that can change 
+     * within the governance ecosystem. 
+     */
+
     /**
      * Network: Kovan
      * Oracle: 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56
@@ -50,124 +56,97 @@ contract Bridge2Elrond is OracleLink, ChainlinkClient, AccessControl {
      */
     function initialize(uint256 init_fee) public {
 
-        govAddress = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;
-        _fee       = init_fee;
+        require(!initialized, "Contract instance has already been initialized");
+        initialized = true;
 
-        setPublicChainlinkToken();
+        _numOracles    += 1;
+        fee             = init_fee;                                                     // (Varies by network and job)
+        _bridgeContract = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;       // This address should be the address of the bridge contract (There might be a circular loop here as the Bridge Contract will need the address of this contract.)
+        _oracleList.push(0xFA9E7d769870CEAa202C1090D80daF7CBd655F56);       // Set the initial Node address.
+
+        // Setup the initial list of Job Specifications.
+        jobId_eth2erd = "ENTER_NUMBER_HERE";                                // Add the jobID of your chainlink external adapter job here.
 
     }
 
 
     /**
-     * requestElrondTransfer()
-     *
-     *           This function builds a Chainlink request to retrive the high or
-     *           low address within the pre-defined URL. No URL is needed to pass
-     *           as it is already hard coded in the EA. 
-     *            
-     * 
-     * Parameters
-     * ----------
-     * _highlow : string
-     *          - The 'high' or 'low' parameter to query the "highlow" EA response.
-     *
+     * @notice Adds a new approved Chainlink node to the Oracle contract
      */
-    function requestElrondTransfer(string memory elrondAddress, uint256 amount) minimumAmount public payable
-    {
-        // NOTE: [1] Do we need any requirements?
-        // NOTE: [2] What if a user/address sends multiple requests?
-        // NOTE: [3] Do we need a NONCE to keep track of transaction requests from the user?
-    
-        // TODO:
-        //      [1] What if a user/address sends multiple requests?
-        //      
-
-        MintingAmount[msg.sender] = msg.value;
-        // --- Transaction Variables ---
-        string memory strAmount = Math.uint2str(msg.value);
-
-        // It might be more cost effective to use a EVENT emitter and then an external initiator to trigger
-        // a Chainlink oracle / job.
-        for (uint i=0; i < oracleList.length; i++) {
-            address oracle = oracleList[i];
-            bytes32 jobId = jobIdList[oracle];
-            Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfillElrondTransfer.selector);
-
-            // Set the Endpoint with the parameter for the amount of WEI
-            request.add("transfer", strAmount);
-
-            request.add("address", elrondAddress);
-
-            request.add("price", strAmount);
-
-            // Sends the request
-            sendChainlinkRequestTo(oracle, request, _fee);
-        }
+    function _addOracle() internal pure {
         
     }
-    
 
     /**
-     * fulfillElrondTransfer()
+     * @notice Adds a new approved Chainlink node to the Oracle contract
+     */
+    function getNumOracles() public view returns (uint256) {
+        return _numOracles;
+    }
+
+
+    /**
+     *
+     */
+    function getOracles() public view returns (address) {
+
+        // We want only the Bridge2Elrond.sol contract to 
+
+
+
+        for (uint i = 0; i < _numOracles; i += 1) {
+            address temp_oracle = _oracleList[i];
+            bytes32[] storage _jobIds = jobIds[_oracle];
+            bytes32 _jobId = _getSpecificJob(_jobIds, "elrond");  // We want to call the correct Bridge.
+        }
+    }
+
+    function getJobIds(address _oracle) public view returns (string memory) {
+
+    }
+
+
+
+
+    // ***********************
+    // --- PRIVATE METHODS ---
+    // ***********************
+
+
+    /**
+     * _getSpecificJob()
      *
      *           Receives the fulfillElrondTransfer() response in the form of bytes32.
      *            
      * 
      * Parameters
      * ----------
-     * _requestId : bytes32
-     *            - The Chainlink Request, request ID, sent with the payload.
+     * _jobIds : bytes32[]
+     *            - The list of available bridges to transfer funds to.
      *
-     * _strMinted : bytes32
-     *            - The "high" or "low" address returned from the pre-defined endpoint.
+     * bridgeName : string
+     *            - The name of the bridge a user wants to transfer to.
      *
      *
-     *      NOTE: [1] How do we figure out what gas price is going to be paid?
-     *      NOTE: [2] We might want to include another function for a user to send more ETH to the contract in order to actually fulfill their payout?
-     *      NOTE: [3] Is the [A] msg.sender still the same on the return fulfillment transfer or [B] will it be the Oracle contract address?
-     *
-     *      TODO: 
-     *            [1] Create a function to return the funds to the transfer requester if the bridge is not successful. 
      *
      */
-    function fulfillElrondTransfer(bytes32 _requestId, bytes32 _strMinted) public recordChainlinkFulfillment(_requestId)
-    {
-        /*
-        We want to aggregate the responses and double check whether the results were correct or not.
+    function _getSpecificJob(
+        bytes32[] storage _jobIds,
+        string memory bridgeName
+    ) private view returns (bytes32) {
 
-        The 
-        */
-        uint256 _minted = Math.asciiToInteger(_strMinted);
+        // TODO: Check if _jobIds is empty / add modifier.
+        // TODO: Add a failed return statement.
 
-        // We want to check and make sure that the amount minted is the correct amount and no additional values where 
-        // Calculate Balance:
-        //      - We need to calculate the balance from the original 
-        uint256 _balance = address(this).balance;
 
-        if(_balance != _minted) {
-            emit Success(msg.sender, _requestId, true, _minted);    // Contract was successfully filled.
+        for (uint i = 0; i < _jobIds.length; i+= 1) {
+            BridgeJobInfo memory jobInfo = bridgeJobInfo[_jobIds[i]];
+            
+            if (Math.CompareStrings(jobInfo.name, bridgeName)) {
+                return (jobInfo.jobId);
+            }
         }
-
-        
-        emit Success(msg.sender, _requestId, false, _minted);       // Contract did not successfully fill.
-                                                                    // TODO: We want to "cancel" the order and return funds to user.
     }
- 
-    // function withdrawLink() external {} - Implement a withdraw function to avoid locking your LINK in the contract
-
-
-    // **********************
-    // --- VIEW FUNCTIONS ---
-    // **********************
-    
-
-
-    // *************************
-    // --- PRIVATE FUNCTIONS ---
-    // *************************
-
-
-    
 
     // *****************
     // --- MODIFIERS ---
@@ -177,4 +156,33 @@ contract Bridge2Elrond is OracleLink, ChainlinkClient, AccessControl {
         _;
     }
 
+    modifier onlyOwner {
+        require(hasRole(BridgeRoles.OWNER_ROLE, msg.sender));
+        _;
+    }
+
+    modifier onlyOracle {
+        require(hasRole(BridgeRoles.ORACLE_ROLE, msg.sender));
+        _;
+    }
+
+     modifier onlyProposer {
+        require(hasRole(BridgeRoles.PROPSOER_ROLE, msg.sender));
+        _;
+    }
+
+    modifier onlyVoter {
+        require(hasRole(BridgeRoles.VOTER_ROLE, msg.sender));
+        _;
+    }
+
+    modifier onlyMinter {
+        require(hasRole(BridgeRoles.MINTER_ROLE, msg.sender));
+        _;
+    }
+
+    modifier onlyBridge {
+        require(hasRole(BridgeRoles.BRIDGE_ROLE, _bridgeContract));
+        _;
+    }
 }
