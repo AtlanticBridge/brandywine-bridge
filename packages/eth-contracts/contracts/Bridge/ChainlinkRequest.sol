@@ -22,7 +22,7 @@ import "./OracleLink.sol";
  * TODO:
  *      [1] Implement a withdraw function to retrieve the Link locked in the contract. Must 
  */
-contract Bridge2Elrond is OracleLink, ChainlinkClient, AccessControl {
+contract ChainlinkRequest is OracleLink, ChainlinkClient, AccessControl {
 
     using BridgeRoles for bytes32;
     
@@ -38,6 +38,10 @@ contract Bridge2Elrond is OracleLink, ChainlinkClient, AccessControl {
 
     // --- GOVERNANCE VARIABLES ---
     uint256 _fee;
+
+    // --- BRIDGE CONTRACT ---
+    address private _bridgeContract = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;
+    
 
     // Map to 
     

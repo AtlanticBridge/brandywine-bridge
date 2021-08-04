@@ -6,9 +6,12 @@ import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
 import "../Utils/Math.sol";
 import "../Governance/Roles.sol";
 
-contract Governance is AccessControl {
+contract Bridge is AccessControl {
 
     using BridgeRoles for bytes32;
+
+    mapping(address => bytes32[]) private jobIds;               // Holds the specific jobIds for that Oracle.
+
 
     bytes32 private jobId_eth2erd;
     bool private initialized;
@@ -19,7 +22,6 @@ contract Governance is AccessControl {
     address private _bridgeContract;
     uint256 private _numOracles;                                // Index starts at 0, but numNodes is the TOTAL amount of nodes in the list. When indexing, use [ _numNodes - 1 ].
     mapping(address => bool) private authorizedOracles;         // The authorized nodes allow us to ping multiple nodes and aggregate responses through the same Oracle contract.
-    mapping(address => bytes32[]) private jobIds;               // Holds the specific jobIds for that Oracle.
     mapping(bytes32 => BridgeJobInfo) private bridgeJobInfo;    // Holds the jobId information.
 
     // We want to:
@@ -91,9 +93,6 @@ contract Governance is AccessControl {
     function getOracles() public view returns (address) {
 
         // We want only the Bridge2Elrond.sol contract to 
-
-
-
         for (uint i = 0; i < _numOracles; i += 1) {
             address temp_oracle = _oracleList[i];
             bytes32[] storage _jobIds = jobIds[_oracle];
