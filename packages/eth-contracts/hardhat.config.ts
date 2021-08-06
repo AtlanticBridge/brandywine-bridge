@@ -2,6 +2,8 @@ import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-ethers"
 
 require('dotenv').config()
+
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -19,7 +21,20 @@ export default {
       accounts: [process.env.KOVAN_PRIVATE_KEY]
     }
   },
-  solidity: "0.7.3",
+  solidity: {
+    version: "0.7.3",
+    settings: {
+      optimizer: {
+        enable: true,
+        runs: 200
+      }
+    }
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    
+  }
 };
 
 // --- Alternative to the Configuration Defined Above ---
