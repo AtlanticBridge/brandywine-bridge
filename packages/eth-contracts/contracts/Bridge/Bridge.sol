@@ -8,21 +8,21 @@ import "../Governance/Roles.sol";
 
 contract Bridge is AccessControl {
 
+    // Instantiable Variables
     using BridgeRoles for bytes32;
-
-    mapping(address => bytes32[]) private jobIds;               // Holds the specific jobIds for that Oracle.
-
-
-    bytes32 private jobId_eth2erd;
     bool private initialized;
-    uint256 private fee;
-    address private _oracle;
-    address[] private _oracleList;
-    // 100 oracles => 20 requests. >20 Oracles, then select only 20. Chainlink VRF
-    address private _bridgeContract;
-    uint256 private _numOracles;                                // Index starts at 0, but numNodes is the TOTAL amount of nodes in the list. When indexing, use [ _numNodes - 1 ].
-    mapping(address => bool) private authorizedOracles;         // The authorized nodes allow us to ping multiple nodes and aggregate responses through the same Oracle contract.
-    mapping(bytes32 => BridgeJobInfo) private bridgeJobInfo;    // Holds the jobId information.
+
+    address[] private _oracleList;                  // List of oracles.
+    mapping(address => bytes32[]) private jobIds;   // Holds the specific jobIds for that Oracle.
+    
+    mapping(bytes32 => BridgeJobInfo) BridgeQueue;  // A way to keep track of working jobs
+
+    // --- STRUCTS ---
+    struct BridgeJobInfo {
+        string name;
+        uint256 chainId;
+        bytes32 jobId;
+    }
 
     // We want to:
     //  1. RATE LIMIT
@@ -35,116 +35,162 @@ contract Bridge is AccessControl {
     //      - If something goes wrong in the smart contract, we want to be able to 
     //        pause the contract.
 
-    // --- STRUCTS ---
-    struct BridgeJobInfo {
-        string name;
-        uint256 chainId;
-        bytes32 jobId;
-    }
 
-
-    // --- Governance Metrics ---
-    /**
-     * The governance contract metrics are the variables that can change 
-     * within the governance ecosystem. 
-     */
 
     /**
-     * Network: Kovan
-     * Oracle: 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56
-     * Job ID Average: 58ae9ae2e43a45219185bec59b3794eb
-     * Job ID Highlow: 740306a4d92d4ab1ad07f033183a5975
-     * Fee: 1.1 LINK
+     * initialize()
+     *
+     *
+     * DESCRIPTION
+     * -----------
+     * The initialization function when deploying new updates to the contract.
+     *
+     *
+     * PARAMETERS
+     * ----------
+     * _oracle : address
+     *      - Chainlink Oracle Contract to add to the oracle list.
+     *
+     * _governorRole : address
+     *      - The Governance Contract for setting the Governor Role.
+     *
+     * _jobid : bytes32
+     *      - The job identification for the initial oracle contract.
      */
-    function initialize(uint256 init_fee) public {
+    function initialize(
+        address _oracle,
+        address _governorRole,
+        bytes32 _jobid
+    ) public {
 
         require(!initialized, "Contract instance has already been initialized");
         initialized = true;
 
-        _numOracles    += 1;
-        fee             = init_fee;                                                     // (Varies by network and job)
-        _bridgeContract = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;       // This address should be the address of the bridge contract (There might be a circular loop here as the Bridge Contract will need the address of this contract.)
-        _oracleList.push(0xFA9E7d769870CEAa202C1090D80daF7CBd655F56);       // Set the initial Node address.
+        _oracleList.push(_oracle);          // Set the initial Node address.
+        jobIds[_oracle].push(_jobid);
 
-        // Setup the initial list of Job Specifications.
-        jobId_eth2erd = "ENTER_NUMBER_HERE";                                // Add the jobID of your chainlink external adapter job here.
+        // --- SET INITIAL PERMISSIONS ROLE ---
+        _setupRole(BridgeRoles.OWNER_ROLE, msg.sender);
+        _setupRole(BridgeRoles.GOVERNOR_ROLE, _governorRole);
+        _setupRole(BridgeRoles.OWNER_ROLE, _oracle);
 
     }
 
 
     /**
-     * @notice Adds a new approved Chainlink node to the Oracle contract
-     */
-    function _addOracle() internal pure {
-        
-    }
-
-    /**
-     * @notice Adds a new approved Chainlink node to the Oracle contract
+     * getNumOracles()
+     *
+     *
+     * DESCRIPTION
+     * -----------
+     * Returns the number of Oracles in the bridge.
+     *
+     *
+     * PARAMETERS
+     * ----------
+     * none
      */
     function getNumOracles() public view returns (uint256) {
-        return _numOracles;
+        return _oracleList.length;
     }
 
 
     /**
+     * getNumOracles()
+     *
+     *
+     * DESCRIPTION
+     * -----------
+     * Returns the list of Oracle addresses in the bridge.
+     *
+     *
+     * PARAMETERS
+     * ----------
+     * none
+     */
+    function getOracles()
+      public view
+      returns (address[] memory)
+    {
+        return _oracleList;
+    }
+
+
+    /**
+     * setChainLinkRequestContract()
+     *
+     *
+     * DESCRIPTION
+     * -----------
+     * Sets the CHAINLINK_REQUEST_ROLE to the ChainlinkRequest Contract.
+     *
+     *
+     * PARAMETERS
+     * ----------
+     * _chainlinkRequest : address
+     *      - The address of the ChainlinkRequest.sol deployed contract.
      *
      */
-    function getOracles() public view returns (address) {
-
-        // We want only the Bridge2Elrond.sol contract to 
-        for (uint i = 0; i < _numOracles; i += 1) {
-            address temp_oracle = _oracleList[i];
-            bytes32[] storage _jobIds = jobIds[_oracle];
-            bytes32 _jobId = _getSpecificJob(_jobIds, "elrond");  // We want to call the correct Bridge.
-        }
+    function setChainLinkRequestContract(
+        address _chainlinkRequest
+    ) public 
+      onlyOwner
+    {
+        _setupRole(BridgeRoles.CHAINLINK_REQUEST_ROLE, _chainlinkRequest);
     }
 
-    function getJobIds(address _oracle) public view returns (string memory) {
-
+    /**
+     * _addOracle()
+     *
+     *
+     * DESCRIPTION
+     * -----------
+     * Adds a new approved Chainlink node to the Oracle contract
+     *
+     *
+     * PARAMETERS
+     * ----------
+     * _oracle : address
+     *      -  Chainlink Oracle Contract to add to the oracle list.
+     */
+    function _addOracle(
+        address _oracle
+    ) public
+      onlyGovernor
+    {
+        _oracleList.push(_oracle);
     }
-
-
 
 
     // ***********************
     // --- PRIVATE METHODS ---
     // ***********************
 
-
     /**
      * _getSpecificJob()
      *
-     *           Receives the fulfillElrondTransfer() response in the form of bytes32.
+     *
+     * DESCRIPTION
+     * -----------
+     * Receives the fulfillElrondTransfer() response in the form of bytes32.
      *            
      * 
-     * Parameters
+     * PARAMETERS
      * ----------
      * _jobIds : bytes32[]
-     *            - The list of available bridges to transfer funds to.
+     *      - The list of available bridges to transfer funds to.
      *
      * bridgeName : string
-     *            - The name of the bridge a user wants to transfer to.
-     *
-     *
+     *      - The name of the bridge a user wants to transfer to.
      *
      */
-    function _getSpecificJob(
-        bytes32[] storage _jobIds,
-        string memory bridgeName
-    ) private view returns (bytes32) {
-
-        // TODO: Check if _jobIds is empty / add modifier.
-        // TODO: Add a failed return statement.
-
-
-        for (uint i = 0; i < _jobIds.length; i+= 1) {
-            BridgeJobInfo memory jobInfo = bridgeJobInfo[_jobIds[i]];
-            
-            if (Math.CompareStrings(jobInfo.name, bridgeName)) {
-                return (jobInfo.jobId);
-            }
-        }
+    function getJobIds(
+        address _oracle
+    ) onlyChainlinkRequest onlyOwner
+      public view
+      returns (bytes32[] memory)
+    {
+        return jobIds[_oracle];
     }
 
     // *****************
@@ -155,33 +201,43 @@ contract Bridge is AccessControl {
         _;
     }
 
+    modifier onlyGovernor {
+        require(hasRole(BridgeRoles.GOVERNOR_ROLE, msg.sender),"Must be the GOVERNOR CONTRACT to call.");
+        _;
+    }
+
     modifier onlyOwner {
-        require(hasRole(BridgeRoles.OWNER_ROLE, msg.sender));
+        require(hasRole(BridgeRoles.OWNER_ROLE, msg.sender), "Must be the OWNER to call.");
+        _;
+    }
+
+    modifier onlyChainlinkRequest() {
+        require(hasRole(BridgeRoles.CHAINLINK_REQUEST_ROLE, msg.sender), "Must be the CHAINLINK REQUEST CONTRACT to call.");
         _;
     }
 
     modifier onlyOracle {
-        require(hasRole(BridgeRoles.ORACLE_ROLE, msg.sender));
+        require(hasRole(BridgeRoles.ORACLE_ROLE, msg.sender), "Must be the ORACLE CONTRACT to call.");
         _;
     }
 
-     modifier onlyProposer {
-        require(hasRole(BridgeRoles.PROPSOER_ROLE, msg.sender));
+    modifier onlyProposer {
+        require(hasRole(BridgeRoles.PROPSOER_ROLE, msg.sender), "Must be a PROPOSER to call.");
         _;
     }
 
     modifier onlyVoter {
-        require(hasRole(BridgeRoles.VOTER_ROLE, msg.sender));
+        require(hasRole(BridgeRoles.VOTER_ROLE, msg.sender), "Must be a VOTER to call.");
         _;
     }
 
     modifier onlyMinter {
-        require(hasRole(BridgeRoles.MINTER_ROLE, msg.sender));
+        require(hasRole(BridgeRoles.MINTER_ROLE, msg.sender), "Must be the MINTER to call.");
         _;
     }
 
     modifier onlyBridge {
-        require(hasRole(BridgeRoles.BRIDGE_ROLE, _bridgeContract));
+        require(hasRole(BridgeRoles.BRIDGE_ROLE, msg.sender), "Must be the BRDIGE CONTRACT to call.");
         _;
     }
 }

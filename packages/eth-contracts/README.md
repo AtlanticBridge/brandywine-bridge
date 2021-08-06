@@ -32,6 +32,7 @@ While Item 1 is the Ethereum to Elrond bridge, Item 2 covers un-locking Ether, o
     - [Bridge](#Bridge)
 4. [Bridge Contracts](#Bridge-Contracts)
 5. [Oracle](#Oracle)
+6. [Testing](#Testing)
 
 ## Contract Methodology
 

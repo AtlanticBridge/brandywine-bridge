@@ -3,8 +3,7 @@ pragma solidity ^0.6.0;
 
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
 import "../Utils/Math.sol";
-import "../Governance/Governance.sol";
-import "./OracleLink.sol";
+import "../Bridge/Bridge.sol";
 
 /**
  * @dev Instructions for building the bridge.
@@ -22,13 +21,15 @@ import "./OracleLink.sol";
  * TODO:
  *      [1] Implement a withdraw function to retrieve the Link locked in the contract. Must 
  */
-contract ChainlinkRequest is OracleLink, ChainlinkClient, AccessControl {
+contract ChainlinkRequest is ChainlinkClient, AccessControl {
 
     using BridgeRoles for bytes32;
+    Bridge bdg;
     
     // --- LOCAL VARIABLES ---
-    address private govAddress;
-    Governance private governance;
+    bool private initialized = false;
+    address private bridgeAddress; 
+    uint256 private fee;                
 
     // --- FUND MANAGEMENT VARIABLES --- 
     mapping(address => uint256) private MintingAmount;
@@ -36,34 +37,46 @@ contract ChainlinkRequest is OracleLink, ChainlinkClient, AccessControl {
     // --- EVENTS ---
     event Success(address indexed _from, bytes32 indexed _id, bool _success, uint256 _value);
 
-    // --- GOVERNANCE VARIABLES ---
-    uint256 _fee;
-
-    // --- BRIDGE CONTRACT ---
-    address private _bridgeContract = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;
-    
-
-    // Map to 
     
     /**
-     * Network: Kovan
-     * Oracle: 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56
-     * Job ID Average: 58ae9ae2e43a45219185bec59b3794eb
-     * Job ID Highlow: 740306a4d92d4ab1ad07f033183a5975
-     * Fee: 1.1 LINK
+     * initialize()
+     *
+     *
+     * DESCRIPTION
+     * -----------
+     * The initialization function when deploying new updates to the contract.
+     *
+     *
+     * PARAMETERS
+     * ----------
+     * _fee : uint256
+     *      - The Chainlink fee to be paid out to the Oracle node.
+     *
+     * _bridgeAddress : address
+     *      - The receiving address for minted tokens.
+     *
      */
-    function initialize(uint256 init_fee) public {
+    function initialize(
+        uint256 _fee,
+        address _bridgeAddress
+    ) public {
 
-        govAddress = 0xFA9E7d769870CEAa202C1090D80daF7CBd655F56;
-        _fee       = init_fee;
+        require(!initialized, "Contract instance has already been initialized");
+        initialized = true;
 
         setPublicChainlinkToken();
+
+        // NOTE: The bridge address MUST set this address as a authorized accessor in
+        //       order for this contract to use methods (functions) on the Bridge
+        //       contract.
+        bridgeAddress = _bridgeAddress;
+        fee = _fee;
 
     }
 
 
     /**
-     * requestElrondTransfer()
+     * requestTokenTransfer()
      *
      *           This function builds a Chainlink request to retrive the high or
      *           low address within the pre-defined URL. No URL is needed to pass
@@ -72,11 +85,14 @@ contract ChainlinkRequest is OracleLink, ChainlinkClient, AccessControl {
      * 
      * Parameters
      * ----------
-     * _highlow : string
-     *          - The 'high' or 'low' parameter to query the "highlow" EA response.
+     * rcvAddress : string
+     *          - The recieving address that the minted tokens will be sent to.
      *
      */
-    function requestElrondTransfer(string memory elrondAddress, uint256 amount) minimumAmount public payable
+    function requestTokenTransfer(
+        string memory rcvAddress
+    ) minimumAmount
+      public payable
     {
         // NOTE: [1] Do we need any requirements?
         // NOTE: [2] What if a user/address sends multiple requests?
@@ -84,35 +100,36 @@ contract ChainlinkRequest is OracleLink, ChainlinkClient, AccessControl {
     
         // TODO:
         //      [1] What if a user/address sends multiple requests?
-        //      
+        //
 
         MintingAmount[msg.sender] = msg.value;
         // --- Transaction Variables ---
         string memory strAmount = Math.uint2str(msg.value);
+        address[] memory oracleList = bdg.getOracles();
 
-        // It might be more cost effective to use a EVENT emitter and then an external initiator to trigger
-        // a Chainlink oracle / job.
+        // Send out all Chainlink Requests.
         for (uint i=0; i < oracleList.length; i++) {
+
             address oracle = oracleList[i];
-            bytes32 jobId = jobIdList[oracle];
-            Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfillElrondTransfer.selector);
+            bytes32[] memory jobIds = bdg.getJobIds(oracle);
+
+            // TODO: Get bridge job for specific chain to specific job.
+            Chainlink.Request memory request = buildChainlinkRequest(jobIds[0], address(this), this.fulfillTokenTransfer.selector);
 
             // Set the Endpoint with the parameter for the amount of WEI
             request.add("transfer", strAmount);
 
-            request.add("address", elrondAddress);
-
-            request.add("price", strAmount);
+            request.add("address", rcvAddress);
 
             // Sends the request
-            sendChainlinkRequestTo(oracle, request, _fee);
+            sendChainlinkRequestTo(oracle, request, fee);
         }
         
     }
     
 
     /**
-     * fulfillElrondTransfer()
+     * fulfillTokenTransfer()
      *
      *           Receives the fulfillElrondTransfer() response in the form of bytes32.
      *            
@@ -134,13 +151,13 @@ contract ChainlinkRequest is OracleLink, ChainlinkClient, AccessControl {
      *            [1] Create a function to return the funds to the transfer requester if the bridge is not successful. 
      *
      */
-    function fulfillElrondTransfer(bytes32 _requestId, bytes32 _strMinted) public recordChainlinkFulfillment(_requestId)
+    function fulfillTokenTransfer(
+        bytes32 _requestId,
+        bytes32 _strMinted
+    ) public recordChainlinkFulfillment(_requestId)
     {
-        /*
-        We want to aggregate the responses and double check whether the results were correct or not.
+        //TODO: This should aggregate the responses and establish a final result.
 
-        The 
-        */
         uint256 _minted = Math.asciiToInteger(_strMinted);
 
         // We want to check and make sure that the amount minted is the correct amount and no additional values where 
@@ -149,26 +166,15 @@ contract ChainlinkRequest is OracleLink, ChainlinkClient, AccessControl {
         uint256 _balance = address(this).balance;
 
         if(_balance != _minted) {
-            emit Success(msg.sender, _requestId, true, _minted);    // Contract was successfully filled.
-        }
-
-        
-        emit Success(msg.sender, _requestId, false, _minted);       // Contract did not successfully fill.
+            emit Success(msg.sender, _requestId, false, _minted);    // Contract was successfully filled.
+        } else {
+            emit Success(msg.sender, _requestId, true, _minted);   // Contract did not successfully fill.
                                                                     // TODO: We want to "cancel" the order and return funds to user.
+        }
+        
     }
  
     // function withdrawLink() external {} - Implement a withdraw function to avoid locking your LINK in the contract
-
-
-    // **********************
-    // --- VIEW FUNCTIONS ---
-    // **********************
-    
-
-
-    // *************************
-    // --- PRIVATE FUNCTIONS ---
-    // *************************
 
 
     
