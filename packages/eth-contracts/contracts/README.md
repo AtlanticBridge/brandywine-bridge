@@ -5,6 +5,10 @@ The structure of the Ethereum smart contracts for the Brandywine bridge is to mo
 ## Table of Contents
 
 1. [Bridge](#Bridge)
+    - [Oracles](#Oracles)
+    - [Job Specifications](#Job-Specifications)
+    - [Ethereum to Elrond](#Ethereum-to-Elrond)
+    - [Elrond to Ethereum](#Elrond-to-Ethereum)
 2. [Chainlink Request](#Chainlink-Request)
 3. [Aggregator](#Aggregator)
 4. [Governance](#Governance)
@@ -16,16 +20,6 @@ The structure of the Ethereum smart contracts for the Brandywine bridge is to mo
 The Bridge Contract encapsulates the methods and data used to store information about the Chainlink nodes, Oracles, Job Specifications and other generic bridge information. In addition, this contract manages Access control between the [governance contract](#Governance) and the [chainlink request contract](#Chainlink-Request).
 
 The Bridge contracts on Ethereum and Elrond smart contracts work independently from each other and are solely linked through the Chainlink node operators. Having indepenent governance between blockchains allows for the smart contract structure to tailer towards the needs of each respective blockchain. It also helps keep an agnostic and abstract approach, allowing for each blockchain's governance contracts to store the available links to all the blockchain bridges available in the network.
-
-#### Ethereum to Elrond
-
-Bridge contracts are based in Ethereum due to the connection structure of the Chainlink node connection being dependent to EVM machines. To be agnostic and maintain decentralization, there is a need to [1] aggregate responses from external adapters on the Chainlink nodes and [2] aggregate responses from Chainlink nodes in the smart contracts.
-
-#### Elrond to Ethereum
-
-Because the Chainlink nodes are directly linked to the Ethereum blockchain and not the Elrond blockchain (currently), it is necessary to utilize external initiators to trigger Chainlink node operations. 
-
-For more information on the Elrond smart contracts and structure, please refer to the README in the erd-contracts package.
 
 ### Oracles
 
@@ -39,11 +33,22 @@ All Chainlink transactions are funneled through the Chainlink Oracle contracts. 
 
 The job specifications are the identifiable identifiction numbers associated with a unique Chainlink Oracle. The job specifications should contain the specific information about which blockchain is associated with them.
 
+### Ethereum to Elrond
+
+Bridge contracts are based in Ethereum due to the connection structure of the Chainlink node connection being dependent to EVM machines. To be agnostic and maintain decentralization, there is a need to [1] aggregate responses from external adapters on the Chainlink nodes and [2] aggregate responses from Chainlink nodes in the smart contracts.
+
+### Elrond to Ethereum
+
+Because the Chainlink nodes are directly linked to the Ethereum blockchain and not the Elrond blockchain (currently), it is necessary to utilize external initiators to trigger Chainlink node operations. 
+
+For more information on the Elrond smart contracts and structure, please refer to the README in the erd-contracts package.
+
+
 ## Chainlink Request
 
 The Chainlink Request Contract collects oracle and job information from the [bridge contract](#Bridge) to process and submit jobs to a set of Chainlink nodes. The number of oracle jobs (`M`) to be submitted is the minimum number of oracles required for the aggregator contract to receive and to be effectively used to come to a minting consensus.
 
-### Aggregator
+## Aggregator
 
 The aggregator contract resolves the incoming requests to unlock ETH held in the holding contract. This contrcat does not get invoked when locking up ETH to be minted on the Elrond blockchain.
 A separate aggregator contract to mint the bETH on Elrond is used.

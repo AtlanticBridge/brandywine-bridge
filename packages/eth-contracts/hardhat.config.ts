@@ -3,7 +3,6 @@ import "@nomiclabs/hardhat-ethers"
 
 require('dotenv').config()
 
-
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -33,12 +32,10 @@ export default {
   paths: {
     sources: "./contracts",
     tests: "./test",
-    
+    cache: "./cache",
+    artifacts: "./artifacts"
+  },
+  mocha: {
+    timeout: 20000
   }
-};
-
-// --- Alternative to the Configuration Defined Above ---
-// const config: HardhatUserConfig {
-// }
-
-// export default config;
+}

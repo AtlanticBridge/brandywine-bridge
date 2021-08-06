@@ -1,4 +1,4 @@
-# Atlantic Soldity Contracts
+# Atlantic Bridge Soldity Contract Developmentz
 
 This repository contains the solidity contracts that manage the Brandywine Bridge project. The solidity contracts for the Brandywine Bridge are two main categories:
 
@@ -29,6 +29,14 @@ While Item 1 is the Ethereum to Elrond bridge, Item 2 covers un-locking Ether, o
 4. [Scripts](#Scripts)
 
 ## Getting Started
+
+Getting started with testing, deploying and creating smart contracts should start *after* installing the package dependencies required by the main Brandywine Bridge README.md.
+
+Once that is done, start here:
+
+```
+yarn complete
+```
 
 
 ## Testing
