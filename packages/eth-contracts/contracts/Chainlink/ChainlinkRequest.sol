@@ -72,6 +72,9 @@ contract ChainlinkRequest is ChainlinkClient, AccessControl {
         bridgeAddress = _bridgeAddress;
         fee = _fee;
 
+        // Link to External Contracts
+        bdg = Bridge(_bridgeAddress);
+
     }
 
 

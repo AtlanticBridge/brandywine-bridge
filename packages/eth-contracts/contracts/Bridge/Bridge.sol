@@ -3,8 +3,7 @@ pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
-import "../Utils/Math.sol";
-import "../Governance/Roles.sol";
+import { BridgeRoles } from "../Governance/Roles.sol";
 
 contract Bridge is AccessControl {
 

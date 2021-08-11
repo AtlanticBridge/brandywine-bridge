@@ -3,7 +3,6 @@ pragma solidity ^0.6.0;
 
 library Math {
 
-
     /**
      * @dev Returns the string of a uint input value.
      *

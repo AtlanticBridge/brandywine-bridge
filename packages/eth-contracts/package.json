@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy:localhost": "npx hardhat run scripts/deploy.ts --network localhost",
-    "deploy:kovan": "npx hardhat run scripts/deploy.ts --network kovan"
+    "deploy:kovan": "npx hardhat run scripts/deploy.ts --network kovan",
+    "deploy:bridge-kovan": "npx hardhat run scripts/deploy_bridge.ts --network kovan"
   },
   "keywords": [],
   "author": "",
