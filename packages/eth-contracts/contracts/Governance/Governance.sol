@@ -88,22 +88,22 @@ contract Governance is AccessControl {
     /**
      *
      */
-    function getOracles() public view returns (address) {
+    // function getOracles() public view returns (address) {
 
-        // We want only the Bridge2Elrond.sol contract to 
+    //     // We want only the Bridge2Elrond.sol contract to 
 
 
 
-        for (uint i = 0; i < _numOracles; i += 1) {
-            address temp_oracle = _oracleList[i];
-            bytes32[] storage _jobIds = jobIds[_oracle];
-            bytes32 _jobId = _getSpecificJob(_jobIds, "elrond");  // We want to call the correct Bridge.
-        }
-    }
+    //     for (uint i = 0; i < _numOracles; i += 1) {
+    //         address temp_oracle = _oracleList[i];
+    //         bytes32[] storage _jobIds = jobIds[_oracle];
+    //         bytes32 _jobId = _getSpecificJob(_jobIds, "elrond");  // We want to call the correct Bridge.
+    //     }
+    // }
 
-    function getJobIds(address _oracle) public view returns (string memory) {
+    // function getJobIds(address __oracle) public view returns (string memory) {
 
-    }
+    // }
 
 
 

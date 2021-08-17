@@ -20,7 +20,7 @@ contract OracleManager {
 
     mapping(uint256 => Oracle) OracleList;
 
-`
+
     /**
         @dev This function interfaces with the governance contract to add a new oracle solution 
      */

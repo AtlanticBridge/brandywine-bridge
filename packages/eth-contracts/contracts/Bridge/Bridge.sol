@@ -33,6 +33,22 @@ contract Bridge is AccessControl {
     //  3. CIRCUIT BREAKER.
     //      - If something goes wrong in the smart contract, we want to be able to 
     //        pause the contract.
+    
+    /**
+    
+        MANAGE CONTROL
+        --------------
+        When managing the control of the bridge and governance, a single entity or user,
+        or even a group of users, should:
+
+            1.  NOT be able to remove user's funds.
+            2.   BE able to pause trading for bug fixes.
+            3.   BE able to blacklist acounts that have stolen funds.
+            4.   BE able to mint and credit appropriate accounts for stolen funds.
+            5. MAKE available blacklisted accounts 
+            
+
+     */
 
 
 
@@ -109,6 +125,7 @@ contract Bridge is AccessControl {
      */
     function getOracles()
       public view
+      onlyChainlinkRequest onlyOwner
       returns (address[] memory)
     {
         return _oracleList;

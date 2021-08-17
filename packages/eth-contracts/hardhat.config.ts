@@ -21,13 +21,7 @@ export default {
     }
   },
   solidity: {
-    version: "0.7.3",
-    settings: {
-      optimizer: {
-        enable: true,
-        runs: 200
-      }
-    }
+    version: "0.6.12"
   },
   paths: {
     sources: "./contracts",
